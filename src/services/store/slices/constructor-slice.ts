@@ -32,31 +32,52 @@ export const burgerConstructorSlice = createSlice({
     ) => {
       state.constructorItems.ingredients.push(action.payload);
     },
+
     setBun: (state, action: PayloadAction<TConstructorIngredient>) => {
       state.constructorItems.bun = action.payload;
     },
+
     removeIngredient: (state, action: PayloadAction<string>) => {
-      // Удаляем по id из API (уникальный для каждого типа ингредиента)
-      state.constructorItems.ingredients =
-        state.constructorItems.ingredients.filter(
-          (ingredient) => ingredient.id !== action.payload
-        );
+      const ingredientIdToRemove = action.payload;
+      const indexToRemove = state.constructorItems.ingredients.findIndex(
+        (ingredient) => ingredient.id === ingredientIdToRemove
+      );
+
+      if (indexToRemove !== -1) {
+        state.constructorItems.ingredients.splice(indexToRemove, 1);
+      }
     },
-    moveIngredient: (
-      state,
-      action: PayloadAction<{ fromIndex: number; toIndex: number }>
-    ) => {
-      const { fromIndex, toIndex } = action.payload;
-      const ingredient = state.constructorItems.ingredients[fromIndex];
-      state.constructorItems.ingredients.splice(fromIndex, 1);
-      state.constructorItems.ingredients.splice(toIndex, 0, ingredient);
+
+    moveIngredientUp: (state, action: PayloadAction<{ index: number }>) => {
+      const { index } = action.payload;
+      if (index > 0) {
+        const ingredients = state.constructorItems.ingredients;
+        [ingredients[index], ingredients[index - 1]] = [
+          ingredients[index - 1],
+          ingredients[index]
+        ];
+      }
     },
+
+    moveIngredientDown: (state, action: PayloadAction<{ index: number }>) => {
+      const { index } = action.payload;
+      const ingredients = state.constructorItems.ingredients;
+      if (index < ingredients.length - 1) {
+        [ingredients[index], ingredients[index + 1]] = [
+          ingredients[index + 1],
+          ingredients[index]
+        ];
+      }
+    },
+
     setOrderRequest: (state, action: PayloadAction<boolean>) => {
       state.orderRequest = action.payload;
     },
+
     setOrderModalData: (state, action: PayloadAction<TOrder | null>) => {
       state.orderModalData = action.payload;
     },
+
     resetConstructor: (state) => {
       Object.assign(state, initialState);
     }
@@ -68,7 +89,8 @@ export const {
   addIngredientToConstructor,
   setBun,
   removeIngredient,
-  moveIngredient,
+  moveIngredientUp,
+  moveIngredientDown,
   setOrderRequest,
   setOrderModalData,
   resetConstructor

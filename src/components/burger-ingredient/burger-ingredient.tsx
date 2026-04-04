@@ -17,8 +17,10 @@ export const BurgerIngredient: FC<TBurgerIngredientProps> = memo(
 
     const handleAdd = () => {
       // Явно приводим тип к TConstructorIngredient — id уже есть в ingredient
-      const constructorIngredient = ingredient as TConstructorIngredient;
-
+      const constructorIngredient: TConstructorIngredient = {
+        ...ingredient,
+        id: `${ingredient._id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      };
       if (ingredient.type === 'bun') {
         // Для булок передаём ингредиент как TConstructorIngredient
         dispatch(setBun(constructorIngredient));
