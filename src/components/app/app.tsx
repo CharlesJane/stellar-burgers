@@ -26,7 +26,6 @@ import {
 
 const App = () => {
   const dispatch = useDispatch();
-  /** TODO: взять переменные из стора */
   const isIngredientsLoading = useSelector(selectIngredientsLoading);
   const ingredients = useSelector(selectIngredients);
   const error = useSelector(selectIngredientsError);

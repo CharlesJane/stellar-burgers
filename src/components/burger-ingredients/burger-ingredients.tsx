@@ -15,7 +15,6 @@ import { BurgerIngredientsUI } from '../ui/burger-ingredients';
 import { Preloader } from '@ui';
 
 export const BurgerIngredients: FC = () => {
-  const dispatch = useDispatch();
   const ingredients = useSelector(selectIngredients);
   const loading = useSelector(selectIngredientsLoading);
   const error = useSelector(selectIngredientsError);

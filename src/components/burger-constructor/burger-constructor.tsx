@@ -1,24 +1,35 @@
-import { FC, useMemo } from 'react';
+import { FC, useMemo, useCallback } from 'react';
 import { TConstructorIngredient } from '@utils-types';
-import { BurgerConstructorUI } from '@ui';
+import { BurgerConstructorUI, Preloader } from '@ui';
+import { useSelector, useDispatch } from '../../services/store';
+import {
+  selectConstructorItems,
+  selectOrderRequest,
+  selectOrderModalData,
+  selectConstructorLoading
+} from '../../services/store/selectors/constructor-selectors';
+import {
+  setOrderRequest,
+  setOrderModalData
+} from '../../services/store/slices/constructor-slice';
 
 export const BurgerConstructor: FC = () => {
-  /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
-  const constructorItems = {
-    bun: {
-      price: 0
-    },
-    ingredients: []
-  };
+  const dispatch = useDispatch();
+  const constructorItems = useSelector(selectConstructorItems);
+  const orderRequest = useSelector(selectOrderRequest);
+  const orderModalData = useSelector(selectOrderModalData);
+  const isLoading = useSelector(selectConstructorLoading);
 
-  const orderRequest = false;
-
-  const orderModalData = null;
-
-  const onOrderClick = () => {
+  const onOrderClick = useCallback(() => {
     if (!constructorItems.bun || orderRequest) return;
-  };
-  const closeOrderModal = () => {};
+    dispatch(setOrderRequest(true));
+    // TODO: здесь будет логика отправки заказа
+  }, [constructorItems.bun, orderRequest, dispatch]);
+
+  const closeOrderModal = useCallback(() => {
+    dispatch(setOrderModalData(null));
+    dispatch(setOrderRequest(false));
+  }, [dispatch]);
 
   const price = useMemo(
     () =>
@@ -29,6 +40,11 @@ export const BurgerConstructor: FC = () => {
       ),
     [constructorItems]
   );
+
+  // Показываем лоадер, если идёт запрос к серверу
+  if (isLoading) {
+    return <Preloader />;
+  }
 
   return (
     <BurgerConstructorUI
