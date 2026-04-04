@@ -4,6 +4,11 @@ import { useLocation } from 'react-router-dom';
 import { BurgerIngredientUI } from '@ui';
 import { TBurgerIngredientProps } from './type';
 import { useDispatch } from '../../services/store';
+import { TConstructorIngredient } from '@utils-types';
+import {
+  addIngredientToConstructor,
+  setBun
+} from '../../services/store/slices/constructor-slice';
 
 export const BurgerIngredient: FC<TBurgerIngredientProps> = memo(
   ({ ingredient, count }) => {
@@ -11,7 +16,16 @@ export const BurgerIngredient: FC<TBurgerIngredientProps> = memo(
     const dispatch = useDispatch();
 
     const handleAdd = () => {
-      // dispatch(addIngredientToConstructor(ingredient));
+      // Явно приводим тип к TConstructorIngredient — id уже есть в ingredient
+      const constructorIngredient = ingredient as TConstructorIngredient;
+
+      if (ingredient.type === 'bun') {
+        // Для булок передаём ингредиент как TConstructorIngredient
+        dispatch(setBun(constructorIngredient));
+      } else {
+        // Для начинок передаём ингредиент как TConstructorIngredient
+        dispatch(addIngredientToConstructor(constructorIngredient));
+      }
     };
 
     return (

@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '../../store';
-import { TIngredient } from '@utils-types';
+import { TConstructorIngredient } from '@utils-types';
 
 // Базовые селекторы
 export const selectConstructorItems = (state: RootState) =>
@@ -15,12 +15,17 @@ export const selectOrderModalData = (state: RootState) =>
 // Составные селекторы (если нужны)
 export const selectTotalPrice = createSelector(
   [selectConstructorItems],
-  (constructorItems) => {
+  (constructorItems): number => {
+    // Цена булки (верх + низ = ×2)
     const bunPrice = constructorItems.bun ? constructorItems.bun.price * 2 : 0;
+
+    // Сумма цен всех начинок
     const ingredientsPrice = constructorItems.ingredients.reduce(
-      (sum: number, ingredient: TIngredient) => sum + ingredient.price,
+      (sum: number, ingredient: TConstructorIngredient) =>
+        sum + ingredient.price,
       0
     );
+
     return bunPrice + ingredientsPrice;
   }
 );

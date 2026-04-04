@@ -36,6 +36,7 @@ export const burgerConstructorSlice = createSlice({
       state.constructorItems.bun = action.payload;
     },
     removeIngredient: (state, action: PayloadAction<string>) => {
+      // Удаляем по id из API (уникальный для каждого типа ингредиента)
       state.constructorItems.ingredients =
         state.constructorItems.ingredients.filter(
           (ingredient) => ingredient.id !== action.payload
@@ -71,7 +72,7 @@ export const {
   setOrderRequest,
   setOrderModalData,
   resetConstructor
-} = burgerConstructorSlice.caseReducers;
+} = burgerConstructorSlice.actions;
 
 // Экспортируем редьюсер
 export default burgerConstructorSlice.reducer;
