@@ -1,16 +1,26 @@
-import { RootState } from '../../store';
+import { createSelector } from '@reduxjs/toolkit';
+import type { RootState } from '../../store';
+import { TIngredient } from '@utils-types';
 
+// Базовые селекторы
 export const selectConstructorItems = (state: RootState) =>
-  state.constructor.constructorItems;
+  state.burgerConstructor.constructorItems;
 
 export const selectOrderRequest = (state: RootState) =>
-  state.constructor.orderRequest;
+  state.burgerConstructor.orderRequest;
 
 export const selectOrderModalData = (state: RootState) =>
-  state.constructor.orderModalData;
+  state.burgerConstructor.orderModalData;
 
-export const selectConstructorLoading = (state: RootState) =>
-  state.constructor.loading;
-
-export const selectConstructorError = (state: RootState) =>
-  state.constructor.error;
+// Составные селекторы (если нужны)
+export const selectTotalPrice = createSelector(
+  [selectConstructorItems],
+  (constructorItems) => {
+    const bunPrice = constructorItems.bun ? constructorItems.bun.price * 2 : 0;
+    const ingredientsPrice = constructorItems.ingredients.reduce(
+      (sum: number, ingredient: TIngredient) => sum + ingredient.price,
+      0
+    );
+    return bunPrice + ingredientsPrice;
+  }
+);

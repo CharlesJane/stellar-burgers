@@ -122,28 +122,20 @@ type TNewOrderResponse = TServerResponse<{
   name: string;
 }>;
 
-export const orderBurgerApi = (data: string[]) => {
-  try {
-    const body = JSON.stringify({ ingredients: data });
-    return fetchWithRefresh<TNewOrderResponse>(`${URL}/orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8',
-        authorization: getCookie('accessToken')
-      } as HeadersInit,
-      body
-    }).then((data) => {
-      if (data?.success) return data;
-      return Promise.reject(data);
-    });
-  } catch (serializationError) {
-    return Promise.reject({
-      success: false,
-      message: 'Ошибка сериализации данных заказа',
-      error: serializationError
-    });
-  }
-};
+export const orderBurgerApi = (data: string[]) =>
+  fetchWithRefresh<TNewOrderResponse>(`${URL}/orders`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8',
+      authorization: getCookie('accessToken')
+    } as HeadersInit,
+    body: JSON.stringify({
+      ingredients: data
+    })
+  }).then((data) => {
+    if (data?.success) return data;
+    return Promise.reject(data);
+  });
 
 type TOrderResponse = TServerResponse<{
   orders: TOrder[];

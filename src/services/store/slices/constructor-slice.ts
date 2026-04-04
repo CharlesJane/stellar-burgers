@@ -1,47 +1,35 @@
-import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { TConstructorIngredient, TOrder } from '@utils-types';
-import { getOrderByNumberApi } from '@api';
 
-interface ConstructorState {
+// Тип для состояния конструктора
+export type BurgerConstructorState = {
   constructorItems: {
     bun: TConstructorIngredient | null;
     ingredients: TConstructorIngredient[];
   };
   orderRequest: boolean;
   orderModalData: TOrder | null;
-  loading: boolean;
-  error: string | null;
-}
+};
 
-const initialState: ConstructorState = {
+// Начальное состояние
+const initialState: BurgerConstructorState = {
   constructorItems: {
     bun: null,
     ingredients: []
   },
   orderRequest: false,
-  orderModalData: null,
-  loading: false,
-  error: null
+  orderModalData: null
 };
 
-export const fetchOrderDetails = createAsyncThunk<
-  TOrder,
-  number,
-  { rejectValue: string }
->('constructor/fetchOrderDetails', async (orderNumber, { rejectWithValue }) => {
-  try {
-    const response = await getOrderByNumberApi(orderNumber);
-    return response.orders[0];
-  } catch (error) {
-    return rejectWithValue('Ошибка загрузки данных заказа');
-  }
-});
-
-const constructorSlice = createSlice({
-  name: 'constructor',
+// Создание slice
+export const burgerConstructorSlice = createSlice({
+  name: 'burgerConstructor',
   initialState,
   reducers: {
-    addIngredient: (state, action: PayloadAction<TConstructorIngredient>) => {
+    addIngredientToConstructor: (
+      state,
+      action: PayloadAction<TConstructorIngredient>
+    ) => {
       state.constructorItems.ingredients.push(action.payload);
     },
     setBun: (state, action: PayloadAction<TConstructorIngredient>) => {
@@ -50,49 +38,40 @@ const constructorSlice = createSlice({
     removeIngredient: (state, action: PayloadAction<string>) => {
       state.constructorItems.ingredients =
         state.constructorItems.ingredients.filter(
-          (item) => item.id !== action.payload
+          (ingredient) => ingredient.id !== action.payload
         );
     },
     moveIngredient: (
       state,
-      action: PayloadAction<{ dragIndex: number; hoverIndex: number }>
+      action: PayloadAction<{ fromIndex: number; toIndex: number }>
     ) => {
-      const { dragIndex, hoverIndex } = action.payload;
-      const draggedItem = state.constructorItems.ingredients[dragIndex];
-      state.constructorItems.ingredients.splice(dragIndex, 1);
-      state.constructorItems.ingredients.splice(hoverIndex, 0, draggedItem);
+      const { fromIndex, toIndex } = action.payload;
+      const ingredient = state.constructorItems.ingredients[fromIndex];
+      state.constructorItems.ingredients.splice(fromIndex, 1);
+      state.constructorItems.ingredients.splice(toIndex, 0, ingredient);
     },
     setOrderRequest: (state, action: PayloadAction<boolean>) => {
       state.orderRequest = action.payload;
     },
     setOrderModalData: (state, action: PayloadAction<TOrder | null>) => {
       state.orderModalData = action.payload;
+    },
+    resetConstructor: (state) => {
+      Object.assign(state, initialState);
     }
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchOrderDetails.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchOrderDetails.fulfilled, (state, action) => {
-        state.orderModalData = action.payload;
-        state.loading = false;
-      })
-      .addCase(fetchOrderDetails.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || 'Неизвестная ошибка';
-      });
   }
 });
 
+// Экспортируем действия (actions)
 export const {
-  addIngredient,
+  addIngredientToConstructor,
   setBun,
   removeIngredient,
   moveIngredient,
   setOrderRequest,
-  setOrderModalData
-} = constructorSlice.actions;
+  setOrderModalData,
+  resetConstructor
+} = burgerConstructorSlice.caseReducers;
 
-export default constructorSlice.reducer;
+// Экспортируем редьюсер
+export default burgerConstructorSlice.reducer;
