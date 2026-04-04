@@ -1,5 +1,10 @@
+import { ConstructorPage } from '@pages';
+import '../../index.css';
+import styles from './app.module.css';
+import { useEffect } from 'react';
+
+import { AppHeader, Modal, OrderInfo, IngredientDetails } from '@components';
 import {
-  ConstructorPage,
   Feed,
   Login,
   Register,
@@ -9,23 +14,33 @@ import {
   ProfileOrders,
   NotFound404
 } from '@pages';
-import { Modal, OrderInfo, IngredientDetails } from '@components';
-import '../../index.css';
-import styles from './app.module.css';
-
-import { Routes, Route, useLocation } from 'react-router-dom';
-import { ProtectedRoute } from '../protected-route';
-
-import { AppHeader } from '@components';
 import { Preloader } from '@ui';
+import { Route, Routes, useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from '../../services/store';
+import { fetchIngredients } from '../../services/store/slices/ingredients-slice';
+import {
+  selectIngredients,
+  selectIngredientsLoading,
+  selectIngredientsError
+} from '../../services/store/selectors/ingredients-selectors';
 
 const App = () => {
+  const dispatch = useDispatch();
+  /** TODO: взять переменные из стора */
+  const isIngredientsLoading = useSelector(selectIngredientsLoading);
+  const ingredients = useSelector(selectIngredients);
+  const error = useSelector(selectIngredientsError);
+
   const location = useLocation();
   const backgroundLocation = location.state?.backgroundLocation;
-  /** TODO: взять переменные из стора */
-  const isIngredientsLoading = false;
-  const ingredients = [];
-  const error = null;
+
+  useEffect(() => {
+    if (ingredients.length === 0 && !isIngredientsLoading) {
+      dispatch(fetchIngredients());
+    }
+  }, [dispatch, ingredients.length, isIngredientsLoading]);
+
+  const hasIngredients = ingredients.length > 0;
 
   return (
     <div className={styles.app}>
@@ -36,59 +51,20 @@ const App = () => {
         <div className={`${styles.error} text text_type_main-medium pt-4`}>
           {error}
         </div>
-      ) : true ? (
+      ) : hasIngredients ? (
         <>
           <Routes location={backgroundLocation || location}>
             <Route path='/' element={<ConstructorPage />} />
             <Route path='/feed' element={<Feed />} />
-            <Route
-              path='/login'
-              element={
-                <ProtectedRoute>
-                  <Login />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path='/register'
-              element={
-                <ProtectedRoute>
-                  <Register />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path='/forgot-password'
-              element={
-                <ProtectedRoute>
-                  <ForgotPassword />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path='/reset-password'
-              element={
-                <ProtectedRoute>
-                  <ResetPassword />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path='/profile'
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path='/profile/orders'
-              element={
-                <ProtectedRoute>
-                  <ProfileOrders />
-                </ProtectedRoute>
-              }
-            />
+            <Route path='/login' element={<Login />} />
+            <Route path='/register' element={<Register />} />
+            <Route path='/forgot-password' element={<ForgotPassword />} />
+            <Route path='/reset-password' element={<ResetPassword />} />
+            <Route path='/profile'>
+              <Route index element={<Profile />} />
+              <Route path='orders' element={<ProfileOrders />} />
+            </Route>
+
             <Route path='*' element={<NotFound404 />} />
           </Routes>
 
@@ -97,7 +73,7 @@ const App = () => {
               <Route
                 path='/feed/:number'
                 element={
-                  <Modal title='Информация о заказах' onClose={() => {}}>
+                  <Modal title='Описание заказа' onClose={() => {}}>
                     <OrderInfo />
                   </Modal>
                 }
@@ -105,7 +81,7 @@ const App = () => {
               <Route
                 path='/ingredients/:id'
                 element={
-                  <Modal title='Информация об ингредиенте' onClose={() => {}}>
+                  <Modal title='Описание ингредиента' onClose={() => {}}>
                     <IngredientDetails />
                   </Modal>
                 }
@@ -113,11 +89,12 @@ const App = () => {
               <Route
                 path='/profile/orders/:number'
                 element={
-                  <ProtectedRoute>
-                    <Modal title='Информация о заказе' onClose={() => {}}>
-                      <OrderInfo />
-                    </Modal>
-                  </ProtectedRoute>
+                  <Modal
+                    title='Описание размещенного пользователем заказа'
+                    onClose={() => {}}
+                  >
+                    <OrderInfo />
+                  </Modal>
                 }
               />
             </Routes>
