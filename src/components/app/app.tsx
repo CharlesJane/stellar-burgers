@@ -1,7 +1,7 @@
 import { ConstructorPage } from '@pages';
 import '../../index.css';
 import styles from './app.module.css';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { AppHeader, Modal, OrderInfo, IngredientDetails } from '@components';
 import {
@@ -15,7 +15,7 @@ import {
   NotFound404
 } from '@pages';
 import { Preloader } from '@ui';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from '../../services/store';
 import { fetchIngredients } from '../../services/store/slices/ingredients-slice';
 import {
@@ -32,12 +32,20 @@ const App = () => {
 
   const location = useLocation();
   const backgroundLocation = location.state?.backgroundLocation;
-
+  const navigate = useNavigate();
   useEffect(() => {
     if (ingredients.length === 0 && !isIngredientsLoading) {
       dispatch(fetchIngredients());
     }
   }, [dispatch, ingredients.length, isIngredientsLoading]);
+
+  const handleModalClose = useMemo(
+    () => () => {
+      // Возвращаемся на предыдущую страницу (backgroundLocation)
+      navigate(backgroundLocation?.pathname || '/');
+    },
+    [navigate, backgroundLocation]
+  );
 
   const hasIngredients = ingredients.length > 0;
 
@@ -72,7 +80,7 @@ const App = () => {
               <Route
                 path='/feed/:number'
                 element={
-                  <Modal title='Описание заказа' onClose={() => {}}>
+                  <Modal title='Описание заказа' onClose={handleModalClose}>
                     <OrderInfo />
                   </Modal>
                 }
@@ -80,7 +88,10 @@ const App = () => {
               <Route
                 path='/ingredients/:id'
                 element={
-                  <Modal title='Описание ингредиента' onClose={() => {}}>
+                  <Modal
+                    title='Описание ингредиента'
+                    onClose={handleModalClose}
+                  >
                     <IngredientDetails />
                   </Modal>
                 }
@@ -90,7 +101,7 @@ const App = () => {
                 element={
                   <Modal
                     title='Описание размещенного пользователем заказа'
-                    onClose={() => {}}
+                    onClose={handleModalClose}
                   >
                     <OrderInfo />
                   </Modal>
