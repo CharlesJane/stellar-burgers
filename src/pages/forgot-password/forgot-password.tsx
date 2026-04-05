@@ -7,6 +7,7 @@ import { ForgotPasswordUI } from '@ui-pages';
 export const ForgotPassword: FC = () => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -14,12 +15,15 @@ export const ForgotPassword: FC = () => {
     e.preventDefault();
 
     setError(null);
+    setIsLoading(true);
+
     forgotPasswordApi({ email })
       .then(() => {
         localStorage.setItem('resetPassword', 'true');
         navigate('/reset-password', { replace: true });
       })
-      .catch((err) => setError(err));
+      .catch((err) => setError(err))
+      .finally(() => setIsLoading(false));
   };
 
   return (
@@ -28,6 +32,7 @@ export const ForgotPassword: FC = () => {
       email={email}
       setEmail={setEmail}
       handleSubmit={handleSubmit}
+      isLoading={isLoading}
     />
   );
 };
