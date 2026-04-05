@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { TUser } from '@utils-types';
 import { fetchUser } from '../../services/store/slices/user-slice';
 import { useDispatch } from '../../services/store';
+import { setCookie } from '../../utils/cookie';
 
 export const Login: FC = () => {
   const navigate = useNavigate();
@@ -25,6 +26,8 @@ export const Login: FC = () => {
 
     try {
       const authData = await loginUserApi({ email, password });
+      localStorage.setItem('refreshToken', authData.refreshToken);
+      setCookie('accessToken', authData.accessToken);
 
       await dispatch(fetchUser()).unwrap();
 
@@ -32,6 +35,8 @@ export const Login: FC = () => {
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err);
+      } else {
+        setError(new Error('Ошибка авторизации'));
       }
     } finally {
       setIsLoading(false);

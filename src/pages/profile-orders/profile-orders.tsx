@@ -8,6 +8,7 @@ import {
   selectProfileOrdersLoading,
   selectProfileOrdersError
 } from '../../services/store/selectors/profile-orders-selectors';
+import { Preloader } from '@ui';
 
 export const ProfileOrders: FC = () => {
   const dispatch = useDispatch();
@@ -25,7 +26,7 @@ export const ProfileOrders: FC = () => {
   }, [dispatch, hasLoaded, isLoading, orders.length]);
 
   if (isLoading) {
-    return <div>Загрузка заказов...</div>;
+    return <Preloader />;
   }
 
   if (error) {

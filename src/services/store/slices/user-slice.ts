@@ -57,7 +57,6 @@ export const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // fetchUser
       .addCase(fetchUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -75,7 +74,6 @@ export const userSlice = createSlice({
           state.error = 'Ошибка загрузки данных пользователя';
         }
       })
-      // updateUser
       .addCase(updateUser.pending, (state) => {
         state.loading = true;
         state.error = null;
