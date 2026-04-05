@@ -1,5 +1,52 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { TConstructorIngredient, TOrder } from '@utils-types';
+import { RootState } from '../../store';
+import { orderBurgerApi } from '@api';
+
+export const createOrder = createAsyncThunk<
+  TOrder,
+  void,
+  { rejectValue: string }
+>('burgerConstructor/createOrder', async (_, { getState, rejectWithValue }) => {
+  try {
+    const state = getState() as RootState;
+    const constructorItems = state.burgerConstructor.constructorItems;
+
+    // Формируем массив ID ингредиентов: булка (2 раза) + остальные ингредиенты
+    const ingredientIds: string[] = [];
+
+    if (constructorItems.bun) {
+      ingredientIds.push(constructorItems.bun._id); // верхняя булка
+      ingredientIds.push(constructorItems.bun._id); // нижняя булка
+    }
+
+    constructorItems.ingredients.forEach((ingredient) => {
+      ingredientIds.push(ingredient._id);
+    });
+
+    // Получаем ответ от API
+    const response = await orderBurgerApi(ingredientIds);
+
+    // Преобразуем TNewOrder в TOrder
+    const order: TOrder = {
+      _id: response.order._id,
+      status: response.order.status,
+      name: response.name, // используем имя из ответа
+      createdAt: response.order.createdAt,
+      updatedAt: response.order.updatedAt,
+      number: response.order.number,
+      ingredients: ingredientIds // передаём массив ID ингредиентов
+    };
+
+    return order;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    } else {
+      return rejectWithValue('Ошибка создания заказа');
+    }
+  }
+});
 
 // Тип для состояния конструктора
 export type BurgerConstructorState = {
@@ -80,7 +127,31 @@ export const burgerConstructorSlice = createSlice({
 
     resetConstructor: (state) => {
       Object.assign(state, initialState);
+    },
+
+    closeOrderModal: (state) => {
+      state.orderModalData = null;
     }
+  },
+  extraReducers(builder) {
+    builder
+      .addCase(createOrder.pending, (state) => {
+        state.orderRequest = true;
+        state.orderModalData = null;
+      })
+      .addCase(createOrder.fulfilled, (state, action) => {
+        state.orderRequest = false;
+        state.orderModalData = action.payload;
+        // После успешного заказа сбрасываем конструктор
+        state.constructorItems = {
+          bun: null,
+          ingredients: []
+        };
+      })
+      .addCase(createOrder.rejected, (state, action) => {
+        state.orderRequest = false;
+        console.error('Ошибка создания заказа:', action.payload);
+      });
   }
 });
 
@@ -93,7 +164,8 @@ export const {
   moveIngredientDown,
   setOrderRequest,
   setOrderModalData,
-  resetConstructor
+  resetConstructor,
+  closeOrderModal
 } = burgerConstructorSlice.actions;
 
 // Экспортируем редьюсер

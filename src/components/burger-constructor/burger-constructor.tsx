@@ -1,15 +1,19 @@
-import { FC, useMemo } from 'react';
-import { useSelector } from '../../services/store';
+import { FC } from 'react';
+import { useSelector, useDispatch } from '../../services/store';
 import {
   selectConstructorItems,
   selectOrderRequest,
   selectOrderModalData,
   selectTotalPrice
 } from '../../services/store/selectors/constructor-selectors';
-import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
+import {
+  createOrder,
+  closeOrderModal
+} from '../../services/store/slices/constructor-slice';
 
 export const BurgerConstructor: FC = () => {
+  const dispatch = useDispatch();
   const constructorItems = useSelector(selectConstructorItems);
   const orderRequest = useSelector(selectOrderRequest);
   const orderModalData = useSelector(selectOrderModalData);
@@ -17,9 +21,12 @@ export const BurgerConstructor: FC = () => {
 
   const onOrderClick = () => {
     if (!constructorItems.bun || orderRequest) return;
+    dispatch(createOrder());
   };
 
-  const closeOrderModal = () => {};
+  const closeOrderModalHandler = () => {
+    dispatch(closeOrderModal());
+  };
 
   return (
     <BurgerConstructorUI
@@ -28,7 +35,7 @@ export const BurgerConstructor: FC = () => {
       constructorItems={constructorItems}
       orderModalData={orderModalData}
       onOrderClick={onOrderClick}
-      closeOrderModal={closeOrderModal}
+      closeOrderModal={closeOrderModalHandler}
     />
   );
 };
