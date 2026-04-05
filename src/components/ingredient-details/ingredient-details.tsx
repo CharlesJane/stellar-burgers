@@ -12,7 +12,6 @@ import { fetchIngredients } from '../../services/store/slices/ingredients-slice'
 export const IngredientDetails: FC = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
-  /** TODO: взять переменную из стора */
   const ingredientData = useSelector((state) =>
     selectIngredientById(state, id!)
   );

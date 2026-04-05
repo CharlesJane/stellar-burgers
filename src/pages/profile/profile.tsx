@@ -9,7 +9,6 @@ import {
 } from '../../services/store/selectors/user-selectors';
 
 export const Profile: FC = () => {
-  /** TODO: взять переменную из стора */
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
   const isLoading = useSelector(selectUserLoading);

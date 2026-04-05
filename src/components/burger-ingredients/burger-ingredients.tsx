@@ -24,7 +24,6 @@ export const BurgerIngredients: FC = () => {
   const titleMainRef = useRef<HTMLHeadingElement>(null);
   const titleSaucesRef = useRef<HTMLHeadingElement>(null);
 
-  /** TODO: взять переменные из стора */
   const buns = ingredients.filter((ing: TIngredient) => ing.type === 'bun');
   const mains = ingredients.filter((ing: TIngredient) => ing.type === 'main');
   const sauces = ingredients.filter((ing: TIngredient) => ing.type === 'sauce');

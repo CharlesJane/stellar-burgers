@@ -1,6 +1,6 @@
 import { ProfileOrdersUI } from '@ui-pages';
 import { TOrder } from '@utils-types';
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from '../../services/store';
 import { fetchProfileOrders } from '../../services/store/slices/profile-orders-slice';
 import {
@@ -11,15 +11,18 @@ import {
 
 export const ProfileOrders: FC = () => {
   const dispatch = useDispatch();
-  const orders = useSelector(selectProfileOrders); // берём заказы из стора
+  const orders = useSelector(selectProfileOrders);
   const isLoading = useSelector(selectProfileOrdersLoading);
   const error = useSelector(selectProfileOrdersError);
 
+  const [hasLoaded, setHasLoaded] = useState(false);
+
   useEffect(() => {
-    if (orders.length === 0 && !isLoading) {
+    if (!hasLoaded && !isLoading && orders.length === 0) {
       dispatch(fetchProfileOrders());
+      setHasLoaded(true);
     }
-  }, [dispatch, orders, isLoading]);
+  }, [dispatch, hasLoaded, isLoading, orders.length]);
 
   if (isLoading) {
     return <div>Загрузка заказов...</div>;
