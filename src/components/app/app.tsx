@@ -1,7 +1,7 @@
 import { ConstructorPage } from '@pages';
 import '../../index.css';
 import styles from './app.module.css';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { AppHeader, Modal, OrderInfo, IngredientDetails } from '@components';
 import {
@@ -30,6 +30,10 @@ const App = () => {
   const ingredients = useSelector(selectIngredients);
   const error = useSelector(selectIngredientsError);
 
+  const [currentOrderNumber, setCurrentOrderNumber] = useState<number | null>(
+    null
+  );
+
   const location = useLocation();
   const backgroundLocation = location.state?.backgroundLocation ?? null;
   const navigate = useNavigate();
@@ -42,6 +46,7 @@ const App = () => {
   const handleModalClose = useMemo(
     () => () => {
       navigate(backgroundLocation?.pathname || '/');
+      setCurrentOrderNumber(null);
     },
     [navigate, backgroundLocation]
   );
@@ -68,6 +73,18 @@ const App = () => {
             <Route path='/reset-password' element={<ResetPassword />} />
             <Route path='/profile' element={<Profile />} />
             <Route path='/profile/orders' element={<ProfileOrders />} />
+            <Route
+              path='/feed/:number'
+              element={
+                <OrderInfo setCurrentOrderNumber={setCurrentOrderNumber} />
+              }
+            />
+            <Route
+              path='/profile/orders/:number'
+              element={
+                <OrderInfo setCurrentOrderNumber={setCurrentOrderNumber} />
+              }
+            />
             <Route path='*' element={<NotFound404 />} />
           </Routes>
 
@@ -76,8 +93,11 @@ const App = () => {
               <Route
                 path='/feed/:number'
                 element={
-                  <Modal title='Описание заказа' onClose={handleModalClose}>
-                    <OrderInfo />
+                  <Modal
+                    title={`${currentOrderNumber}`}
+                    onClose={handleModalClose}
+                  >
+                    <OrderInfo setCurrentOrderNumber={setCurrentOrderNumber} />
                   </Modal>
                 }
               />
@@ -96,10 +116,10 @@ const App = () => {
                 path='/profile/orders/:number'
                 element={
                   <Modal
-                    title='Описание размещенного пользователем заказа'
+                    title={`${currentOrderNumber}`}
                     onClose={handleModalClose}
                   >
-                    <OrderInfo />
+                    <OrderInfo setCurrentOrderNumber={setCurrentOrderNumber} />
                   </Modal>
                 }
               />
