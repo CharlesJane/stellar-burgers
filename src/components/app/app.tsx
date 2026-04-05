@@ -31,7 +31,9 @@ const App = () => {
   const error = useSelector(selectIngredientsError);
 
   const location = useLocation();
-  const backgroundLocation = location.state?.backgroundLocation;
+  const backgroundLocation =
+    location.state?.backgroundLocation ||
+    (location.pathname !== '/' ? location : null);
   const navigate = useNavigate();
   useEffect(() => {
     if (ingredients.length === 0 && !isIngredientsLoading) {
