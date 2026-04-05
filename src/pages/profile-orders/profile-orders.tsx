@@ -1,10 +1,33 @@
 import { ProfileOrdersUI } from '@ui-pages';
 import { TOrder } from '@utils-types';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
+import { useSelector, useDispatch } from '../../services/store';
+import { fetchProfileOrders } from '../../services/store/slices/profile-orders-slice';
+import {
+  selectProfileOrders,
+  selectProfileOrdersLoading,
+  selectProfileOrdersError
+} from '../../services/store/selectors/profile-orders-selectors';
 
 export const ProfileOrders: FC = () => {
-  /** TODO: взять переменную из стора */
-  const orders: TOrder[] = [];
+  const dispatch = useDispatch();
+  const orders = useSelector(selectProfileOrders); // берём заказы из стора
+  const isLoading = useSelector(selectProfileOrdersLoading);
+  const error = useSelector(selectProfileOrdersError);
+
+  useEffect(() => {
+    if (orders.length === 0 && !isLoading) {
+      dispatch(fetchProfileOrders());
+    }
+  }, [dispatch, orders, isLoading]);
+
+  if (isLoading) {
+    return <div>Загрузка заказов...</div>;
+  }
+
+  if (error) {
+    return <div>Ошибка загрузки заказов: {error}</div>;
+  }
 
   return <ProfileOrdersUI orders={orders} />;
 };

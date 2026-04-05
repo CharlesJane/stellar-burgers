@@ -43,7 +43,6 @@ const App = () => {
 
   const handleModalClose = useMemo(
     () => () => {
-      // Возвращаемся на предыдущую страницу (backgroundLocation)
       navigate(backgroundLocation?.pathname || '/');
     },
     [navigate, backgroundLocation]

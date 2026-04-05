@@ -1,18 +1,31 @@
 import { ProfileUI } from '@ui-pages';
 import { FC, SyntheticEvent, useEffect, useState } from 'react';
+import { useSelector, useDispatch } from '../../services/store';
+import { fetchUser, updateUser } from '../../services/store/slices/user-slice';
+import {
+  selectUser,
+  selectUserLoading,
+  selectUserError
+} from '../../services/store/selectors/user-selectors';
 
 export const Profile: FC = () => {
   /** TODO: взять переменную из стора */
-  const user = {
-    name: '',
-    email: ''
-  };
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+  const isLoading = useSelector(selectUserLoading);
+  const error = useSelector(selectUserError);
 
   const [formValue, setFormValue] = useState({
-    name: user.name,
-    email: user.email,
+    name: user?.name || '',
+    email: user?.email || '',
     password: ''
   });
+
+  useEffect(() => {
+    if (!user && !isLoading) {
+      dispatch(fetchUser());
+    }
+  }, [dispatch, user, isLoading]);
 
   useEffect(() => {
     setFormValue((prevState) => ({
@@ -27,15 +40,28 @@ export const Profile: FC = () => {
     formValue.email !== user?.email ||
     !!formValue.password;
 
-  const handleSubmit = (e: SyntheticEvent) => {
+  const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
+    try {
+      await dispatch(
+        updateUser({
+          name: formValue.name,
+          email: formValue.email,
+          password: formValue.password
+        })
+      );
+      // Сброс пароля в состоянии компонента
+      setFormValue((prev) => ({ ...prev, password: '' }));
+    } catch (err) {
+      console.error('Ошибка обновления профиля:', err);
+    }
   };
 
   const handleCancel = (e: SyntheticEvent) => {
     e.preventDefault();
     setFormValue({
-      name: user.name,
-      email: user.email,
+      name: user?.name || '',
+      email: user?.email || '',
       password: ''
     });
   };
@@ -54,6 +80,7 @@ export const Profile: FC = () => {
       handleCancel={handleCancel}
       handleSubmit={handleSubmit}
       handleInputChange={handleInputChange}
+      updateUserError={error}
     />
   );
 };
