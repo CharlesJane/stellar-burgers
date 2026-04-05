@@ -38,21 +38,20 @@ export const profileOrdersSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // fetchProfileOrders
       .addCase(fetchProfileOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchProfileOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = action.payload;
+        state.data = action.payload; // Обновляем список заказов
       })
       .addCase(fetchProfileOrders.rejected, (state, action) => {
         state.loading = false;
         if (action.payload && typeof action.payload === 'string') {
           state.error = action.payload;
         } else {
-          state.error = 'Ошибка обновления данных пользователя';
+          state.error = 'Ошибка загрузки истории заказов';
         }
       });
   }

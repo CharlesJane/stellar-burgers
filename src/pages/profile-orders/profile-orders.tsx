@@ -3,6 +3,8 @@ import { TOrder } from '@utils-types';
 import { FC, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from '../../services/store';
 import { fetchProfileOrders } from '../../services/store/slices/profile-orders-slice';
+import { fetchFeedThunk } from '../../services/store/slices/feed-slice';
+
 import {
   selectProfileOrders,
   selectProfileOrdersLoading,
@@ -21,6 +23,7 @@ export const ProfileOrders: FC = () => {
   useEffect(() => {
     if (!hasLoaded && !isLoading && orders.length === 0) {
       dispatch(fetchProfileOrders());
+      dispatch(fetchFeedThunk()); // Загружаем фид для синхронизации данных
       setHasLoaded(true);
     }
   }, [dispatch, hasLoaded, isLoading, orders.length]);

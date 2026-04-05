@@ -1,52 +1,56 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { TConstructorIngredient, TOrder } from '@utils-types';
 import { RootState } from '../../store';
-import { orderBurgerApi } from '@api';
+import { orderBurgerApi, getOrdersApi } from '@api';
+import { fetchProfileOrders } from './profile-orders-slice';
 
 export const createOrder = createAsyncThunk<
   TOrder,
   void,
   { rejectValue: string }
->('burgerConstructor/createOrder', async (_, { getState, rejectWithValue }) => {
-  try {
-    const state = getState() as RootState;
-    const constructorItems = state.burgerConstructor.constructorItems;
+>(
+  'burgerConstructor/createOrder',
+  async (_, { getState, dispatch, rejectWithValue }) => {
+    try {
+      const state = getState() as RootState;
+      const constructorItems = state.burgerConstructor.constructorItems;
 
-    // Формируем массив ID ингредиентов: булка (2 раза) + остальные ингредиенты
-    const ingredientIds: string[] = [];
+      const ingredientIds: string[] = [];
+      if (constructorItems.bun) {
+        ingredientIds.push(constructorItems.bun._id);
+        ingredientIds.push(constructorItems.bun._id);
+      }
+      constructorItems.ingredients.forEach((ingredient) => {
+        ingredientIds.push(ingredient._id);
+      });
 
-    if (constructorItems.bun) {
-      ingredientIds.push(constructorItems.bun._id); // верхняя булка
-      ingredientIds.push(constructorItems.bun._id); // нижняя булка
-    }
+      // Создаём заказ
+      const response = await orderBurgerApi(ingredientIds);
 
-    constructorItems.ingredients.forEach((ingredient) => {
-      ingredientIds.push(ingredient._id);
-    });
+      // Преобразуем ответ в TOrder
+      const order: TOrder = {
+        _id: response.order._id,
+        status: response.order.status,
+        name: response.name,
+        createdAt: response.order.createdAt,
+        updatedAt: response.order.updatedAt,
+        number: response.order.number,
+        ingredients: ingredientIds
+      };
 
-    // Получаем ответ от API
-    const response = await orderBurgerApi(ingredientIds);
+      // Перезапрашиваем историю заказов пользователя
+      await dispatch(fetchProfileOrders());
 
-    // Преобразуем TNewOrder в TOrder
-    const order: TOrder = {
-      _id: response.order._id,
-      status: response.order.status,
-      name: response.name, // используем имя из ответа
-      createdAt: response.order.createdAt,
-      updatedAt: response.order.updatedAt,
-      number: response.order.number,
-      ingredients: ingredientIds // передаём массив ID ингредиентов
-    };
-
-    return order;
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return rejectWithValue(error.message);
-    } else {
-      return rejectWithValue('Ошибка создания заказа');
+      return order;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return rejectWithValue(error.message);
+      } else {
+        return rejectWithValue('Ошибка создания заказа');
+      }
     }
   }
-});
+);
 
 // Тип для состояния конструктора
 export type BurgerConstructorState = {
@@ -133,7 +137,7 @@ export const burgerConstructorSlice = createSlice({
       state.orderModalData = null;
     }
   },
-  extraReducers(builder) {
+  extraReducers: (builder) => {
     builder
       .addCase(createOrder.pending, (state) => {
         state.orderRequest = true;
@@ -142,7 +146,7 @@ export const burgerConstructorSlice = createSlice({
       .addCase(createOrder.fulfilled, (state, action) => {
         state.orderRequest = false;
         state.orderModalData = action.payload;
-        // После успешного заказа сбрасываем конструктор
+        // Сбрасываем конструктор
         state.constructorItems = {
           bun: null,
           ingredients: []
