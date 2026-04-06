@@ -14,6 +14,7 @@ import {
   ProfileOrders,
   NotFound404
 } from '@pages';
+import { LayoutUi } from '@ui-pages';
 import { Preloader } from '@ui';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from '../../services/store';
@@ -73,18 +74,39 @@ const App = () => {
             <Route path='/reset-password' element={<ResetPassword />} />
             <Route path='/profile' element={<Profile />} />
             <Route path='/profile/orders' element={<ProfileOrders />} />
-            <Route
-              path='/feed/:number'
-              element={
-                <OrderInfo setCurrentOrderNumber={setCurrentOrderNumber} />
-              }
-            />
-            <Route
-              path='/profile/orders/:number'
-              element={
-                <OrderInfo setCurrentOrderNumber={setCurrentOrderNumber} />
-              }
-            />
+            {!backgroundLocation && (
+              <>
+                <Route
+                  path='/feed/:number'
+                  element={
+                    <LayoutUi>
+                      <OrderInfo
+                        setCurrentOrderNumber={setCurrentOrderNumber}
+                      />
+                    </LayoutUi>
+                  }
+                />
+                <Route
+                  path='/ingredients/:id'
+                  element={
+                    <LayoutUi>
+                      <IngredientDetails />
+                    </LayoutUi>
+                  }
+                />
+                <Route
+                  path='/profile/orders/:number'
+                  element={
+                    <LayoutUi>
+                      <OrderInfo
+                        setCurrentOrderNumber={setCurrentOrderNumber}
+                      />
+                    </LayoutUi>
+                  }
+                />
+              </>
+            )}
+
             <Route path='*' element={<NotFound404 />} />
           </Routes>
 
@@ -128,7 +150,7 @@ const App = () => {
         </>
       ) : (
         <div className={`${styles.title} text text_type_main-medium pt-4`}>
-          Нет игредиентов
+          Нет ингредиентов
         </div>
       )}
     </div>

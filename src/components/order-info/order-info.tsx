@@ -3,9 +3,15 @@ import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
 import { TIngredient } from '@utils-types';
 import { useParams } from 'react-router-dom';
-import { useSelector } from '../../services/store';
+import { useSelector, useDispatch, RootState } from '../../services/store';
 import { selectFeedOrders } from '../../services/store/selectors/feed-selectors';
 import { selectIngredients } from '../../services/store/selectors/ingredients-selectors';
+import {
+  selectCurrentFeedOrder,
+  selectIsFeedLoading,
+  selectOrderByNumber
+} from '../../services/store/selectors/order-selectors';
+import { fetchOrderByNumberThunk } from '../../services/store/slices/feed-slice';
 
 interface OrderInfoProps {
   setCurrentOrderNumber: (number: number | null) => void;
@@ -13,22 +19,34 @@ interface OrderInfoProps {
 
 export const OrderInfo: FC<OrderInfoProps> = ({ setCurrentOrderNumber }) => {
   const { number } = useParams();
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    const orderNumber = number ? parseInt(number, 10) : null;
-    setCurrentOrderNumber(orderNumber);
-    return () => setCurrentOrderNumber(null); // сброс при закрытии
-  }, [number, setCurrentOrderNumber]);
-
-  const orders = useSelector(selectFeedOrders);
+  const currentFeedOrder = useSelector(selectCurrentFeedOrder);
+  const isLoading = useSelector(selectIsFeedLoading);
   const ingredients = useSelector(selectIngredients);
 
-  // Находим заказ по номеру из URL
-  const orderData = orders.find((order) => order.number.toString() === number);
+  const orderNumber = number ? parseInt(number, 10) : null;
 
-  if (!orderData) {
-    return <Preloader />;
-  }
+  const orderFromFeed = useSelector((state: RootState) =>
+    selectOrderByNumber(state, number ? parseInt(number, 10) : 0)
+  );
+
+  const orderData = orderFromFeed || currentFeedOrder;
+
+  useEffect(() => {
+    if (orderNumber) {
+      setCurrentOrderNumber(orderNumber);
+
+      // Если заказа нет в общем списке — загружаем отдельно
+      if (!orderFromFeed) {
+        dispatch(fetchOrderByNumberThunk(orderNumber));
+      }
+    }
+
+    return () => setCurrentOrderNumber(null);
+  }, [dispatch, orderNumber, setCurrentOrderNumber, orderFromFeed]);
+
+  // Находим заказ по номеру из URL
 
   /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
@@ -71,6 +89,10 @@ export const OrderInfo: FC<OrderInfoProps> = ({ setCurrentOrderNumber }) => {
       total
     };
   }, [orderData, ingredients]);
+
+  if (isLoading) {
+    return <Preloader />;
+  }
 
   if (!orderInfo) {
     return <Preloader />;

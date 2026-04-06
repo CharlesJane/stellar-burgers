@@ -9,3 +9,10 @@ export const selectOrderByNumber = (
   [...state.feed.orders, ...state.profileOrders.data].find(
     (order) => order.number === number
   );
+
+export const selectCurrentFeedOrder = (state: RootState): TOrder | null =>
+  state.feed.currentOrder;
+
+// Селектор для проверки загрузки
+export const selectIsFeedLoading = (state: RootState): boolean =>
+  state.feed.loading;
