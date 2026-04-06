@@ -7,6 +7,7 @@ import {
   selectUserLoading,
   selectUserError
 } from '../../services/store/selectors/user-selectors';
+import { Preloader } from '@ui';
 
 export const Profile: FC = () => {
   const dispatch = useDispatch();
@@ -14,30 +15,48 @@ export const Profile: FC = () => {
   const isLoading = useSelector(selectUserLoading);
   const error = useSelector(selectUserError);
 
-  const [formValue, setFormValue] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
+  const [initialData, setInitialData] = useState<{
+    name: string;
+    email: string;
+    password: string;
+  }>({
+    name: '',
+    email: '',
     password: ''
   });
+
+  const [formValue, setFormValue] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+
+  const [hasChanges, setHasChanges] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     if (!user && !isLoading) {
       dispatch(fetchUser());
+      return;
+    }
+
+    if (user) {
+      const initial = {
+        name: user.name,
+        email: user.email,
+        password: ''
+      };
+      setInitialData(initial);
+      setFormValue({
+        name: user.name,
+        email: user.email,
+        password: ''
+      });
+    } else {
+      setInitialData({ name: '', email: '', password: '' });
+      setFormValue({ name: '', email: '', password: '' });
     }
   }, [dispatch, user, isLoading]);
-
-  useEffect(() => {
-    setFormValue((prevState) => ({
-      ...prevState,
-      name: user?.name || '',
-      email: user?.email || ''
-    }));
-  }, [user]);
-
-  const isFormChanged =
-    formValue.name !== user?.name ||
-    formValue.email !== user?.email ||
-    !!formValue.password;
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
@@ -46,11 +65,16 @@ export const Profile: FC = () => {
         updateUser({
           name: formValue.name,
           email: formValue.email,
-          password: formValue.password
+          password: formValue.password || undefined
         })
       );
-      // Сброс пароля в состоянии компонента
+      setInitialData({
+        name: formValue.name,
+        email: formValue.email,
+        password: ''
+      });
       setFormValue((prev) => ({ ...prev, password: '' }));
+      setHasChanges(false);
     } catch (err) {
       console.error('Ошибка обновления профиля:', err);
     }
@@ -59,23 +83,39 @@ export const Profile: FC = () => {
   const handleCancel = (e: SyntheticEvent) => {
     e.preventDefault();
     setFormValue({
-      name: user?.name || '',
-      email: user?.email || '',
+      name: initialData.name,
+      email: initialData.email,
       password: ''
     });
+    setHasChanges(false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsInitialized(true);
     setFormValue((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value
     }));
   };
 
+  useEffect(() => {
+    if (!user) {
+      setHasChanges(false);
+      return;
+    }
+    const isNameChanged = formValue.name !== initialData.name;
+    const isEmailChanged = formValue.email !== initialData.email;
+    const isPasswordChanged = formValue.password !== initialData.password;
+    setHasChanges(isNameChanged || isEmailChanged || isPasswordChanged);
+  }, [formValue, initialData, user]);
+
+  if (isLoading) return <Preloader />;
+  if (error) return <div>Ошибка: {error}</div>;
+
   return (
     <ProfileUI
       formValue={formValue}
-      isFormChanged={isFormChanged}
+      isFormChanged={hasChanges}
       handleCancel={handleCancel}
       handleSubmit={handleSubmit}
       handleInputChange={handleInputChange}

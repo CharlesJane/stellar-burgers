@@ -37,7 +37,6 @@ export const OrderInfo: FC<OrderInfoProps> = ({ setCurrentOrderNumber }) => {
     if (orderNumber) {
       setCurrentOrderNumber(orderNumber);
 
-      // Если заказа нет в общем списке — загружаем отдельно
       if (!orderFromFeed) {
         dispatch(fetchOrderByNumberThunk(orderNumber));
       }
@@ -46,9 +45,6 @@ export const OrderInfo: FC<OrderInfoProps> = ({ setCurrentOrderNumber }) => {
     return () => setCurrentOrderNumber(null);
   }, [dispatch, orderNumber, setCurrentOrderNumber, orderFromFeed]);
 
-  // Находим заказ по номеру из URL
-
-  /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
 

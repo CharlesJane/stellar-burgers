@@ -19,7 +19,6 @@ export const IngredientDetails: FC = () => {
   const isLoading = useSelector(selectIngredientsLoading);
 
   useEffect(() => {
-    // Загружаем все ингредиенты, только если они ещё не загружены
     if (!ingredientData && !isLoading) {
       dispatch(fetchIngredients());
     }

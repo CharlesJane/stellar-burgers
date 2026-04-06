@@ -24,10 +24,8 @@ export const createOrder = createAsyncThunk<
         ingredientIds.push(ingredient._id);
       });
 
-      // Создаём заказ
       const response = await orderBurgerApi(ingredientIds);
 
-      // Преобразуем ответ в TOrder
       const order: TOrder = {
         _id: response.order._id,
         status: response.order.status,
@@ -38,7 +36,6 @@ export const createOrder = createAsyncThunk<
         ingredients: ingredientIds
       };
 
-      // Перезапрашиваем историю заказов пользователя
       await dispatch(fetchProfileOrders());
 
       return order;
@@ -52,7 +49,6 @@ export const createOrder = createAsyncThunk<
   }
 );
 
-// Тип для состояния конструктора
 export type BurgerConstructorState = {
   constructorItems: {
     bun: TConstructorIngredient | null;
@@ -62,7 +58,6 @@ export type BurgerConstructorState = {
   orderModalData: TOrder | null;
 };
 
-// Начальное состояние
 const initialState: BurgerConstructorState = {
   constructorItems: {
     bun: null,
@@ -72,7 +67,6 @@ const initialState: BurgerConstructorState = {
   orderModalData: null
 };
 
-// Создание slice
 export const burgerConstructorSlice = createSlice({
   name: 'burgerConstructor',
   initialState,
@@ -146,7 +140,6 @@ export const burgerConstructorSlice = createSlice({
       .addCase(createOrder.fulfilled, (state, action) => {
         state.orderRequest = false;
         state.orderModalData = action.payload;
-        // Сбрасываем конструктор
         state.constructorItems = {
           bun: null,
           ingredients: []
@@ -159,7 +152,6 @@ export const burgerConstructorSlice = createSlice({
   }
 });
 
-// Экспортируем действия (actions)
 export const {
   addIngredientToConstructor,
   setBun,
@@ -172,5 +164,4 @@ export const {
   closeOrderModal
 } = burgerConstructorSlice.actions;
 
-// Экспортируем редьюсер
 export default burgerConstructorSlice.reducer;

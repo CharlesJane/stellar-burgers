@@ -13,6 +13,5 @@ export const selectOrderByNumber = (
 export const selectCurrentFeedOrder = (state: RootState): TOrder | null =>
   state.feed.currentOrder;
 
-// Селектор для проверки загрузки
 export const selectIsFeedLoading = (state: RootState): boolean =>
   state.feed.loading;

@@ -23,7 +23,7 @@ export const ProfileOrders: FC = () => {
   useEffect(() => {
     if (!hasLoaded && !isLoading && orders.length === 0) {
       dispatch(fetchProfileOrders());
-      dispatch(fetchFeedThunk()); // Загружаем фид для синхронизации данных
+      dispatch(fetchFeedThunk());
       setHasLoaded(true);
     }
   }, [dispatch, hasLoaded, isLoading, orders.length]);

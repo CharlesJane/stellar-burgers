@@ -9,7 +9,6 @@ import { setCookie } from '../../utils/cookie';
 
 export const Login: FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch();
 
   const [email, setEmail] = useState('');
@@ -17,7 +16,7 @@ export const Login: FC = () => {
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const from = location.state?.from?.pathname || '/';
+  const from = localStorage.getItem('redirectAfterLogin') || '/';
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
@@ -30,6 +29,8 @@ export const Login: FC = () => {
       setCookie('accessToken', authData.accessToken);
 
       await dispatch(fetchUser()).unwrap();
+
+      localStorage.removeItem('redirectAfterLogin');
 
       navigate(from, { replace: true });
     } catch (err: unknown) {

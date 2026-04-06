@@ -1,7 +1,7 @@
 import { ConstructorPage } from '@pages';
 import '../../index.css';
 import styles from './app.module.css';
-import { useEffect, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 
 import { AppHeader, Modal, OrderInfo, IngredientDetails } from '@components';
 import {
@@ -24,8 +24,11 @@ import {
   selectIngredientsLoading,
   selectIngredientsError
 } from '../../services/store/selectors/ingredients-selectors';
+import { getCookie } from '../../utils/cookie';
+import { fetchUser } from '../../services/store/slices/user-slice';
+import { ProtectedRoute } from '../protected-route';
 
-const App = () => {
+const App: FC = () => {
   const dispatch = useDispatch();
   const isIngredientsLoading = useSelector(selectIngredientsLoading);
   const ingredients = useSelector(selectIngredients);
@@ -38,9 +41,15 @@ const App = () => {
   const location = useLocation();
   const backgroundLocation = location.state?.backgroundLocation ?? null;
   const navigate = useNavigate();
+
   useEffect(() => {
     if (ingredients.length === 0 && !isIngredientsLoading) {
       dispatch(fetchIngredients());
+    }
+
+    const token = getCookie('accessToken');
+    if (token) {
+      dispatch(fetchUser());
     }
   }, [dispatch, ingredients.length, isIngredientsLoading]);
 
@@ -68,12 +77,55 @@ const App = () => {
           <Routes location={backgroundLocation || location}>
             <Route path='/' element={<ConstructorPage />} />
             <Route path='/feed' element={<Feed />} />
-            <Route path='/login' element={<Login />} />
-            <Route path='/register' element={<Register />} />
-            <Route path='/forgot-password' element={<ForgotPassword />} />
-            <Route path='/reset-password' element={<ResetPassword />} />
-            <Route path='/profile' element={<Profile />} />
-            <Route path='/profile/orders' element={<ProfileOrders />} />
+
+            <Route
+              path='/login'
+              element={
+                <ProtectedRoute requireAuth={false}>
+                  <Login />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/register'
+              element={
+                <ProtectedRoute requireAuth={false}>
+                  <Register />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/forgot-password'
+              element={
+                <ProtectedRoute requireAuth={false}>
+                  <ForgotPassword />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/reset-password'
+              element={
+                <ProtectedRoute requireAuth={false}>
+                  <ResetPassword />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/profile'
+              element={
+                <ProtectedRoute requireAuth>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/profile/orders'
+              element={
+                <ProtectedRoute requireAuth>
+                  <ProfileOrders />
+                </ProtectedRoute>
+              }
+            />
             {!backgroundLocation && (
               <>
                 <Route
@@ -97,11 +149,13 @@ const App = () => {
                 <Route
                   path='/profile/orders/:number'
                   element={
-                    <LayoutUi>
-                      <OrderInfo
-                        setCurrentOrderNumber={setCurrentOrderNumber}
-                      />
-                    </LayoutUi>
+                    <ProtectedRoute requireAuth>
+                      <LayoutUi>
+                        <OrderInfo
+                          setCurrentOrderNumber={setCurrentOrderNumber}
+                        />
+                      </LayoutUi>
+                    </ProtectedRoute>
                   }
                 />
               </>
@@ -137,12 +191,16 @@ const App = () => {
               <Route
                 path='/profile/orders/:number'
                 element={
-                  <Modal
-                    title={`${currentOrderNumber}`}
-                    onClose={handleModalClose}
-                  >
-                    <OrderInfo setCurrentOrderNumber={setCurrentOrderNumber} />
-                  </Modal>
+                  <ProtectedRoute requireAuth>
+                    <Modal
+                      title={`${currentOrderNumber}`}
+                      onClose={handleModalClose}
+                    >
+                      <OrderInfo
+                        setCurrentOrderNumber={setCurrentOrderNumber}
+                      />
+                    </Modal>
+                  </ProtectedRoute>
                 }
               />
             </Routes>

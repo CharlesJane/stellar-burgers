@@ -20,7 +20,6 @@ export const fetchUser = createAsyncThunk(
   }
 );
 
-// Обновление данных пользователя
 export const updateUser = createAsyncThunk<
   TUser,
   Partial<{ email: string; name: string; password: string }>
@@ -67,7 +66,6 @@ export const userSlice = createSlice({
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.loading = false;
-        // Гарантируем, что error — строка
         if (action.payload && typeof action.payload === 'string') {
           state.error = action.payload;
         } else {

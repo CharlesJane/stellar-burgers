@@ -44,7 +44,7 @@ export const profileOrdersSlice = createSlice({
       })
       .addCase(fetchProfileOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = action.payload; // Обновляем список заказов
+        state.data = action.payload;
       })
       .addCase(fetchProfileOrders.rejected, (state, action) => {
         state.loading = false;
