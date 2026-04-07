@@ -6,17 +6,29 @@ import { TUser } from '@utils-types';
 import { fetchUser } from '../../services/store/slices/user-slice';
 import { useDispatch } from '../../services/store';
 import { setCookie } from '../../utils/cookie';
+import { useForm } from '../../services/store/hooks/useForm';
+import { useAuth } from '../../services/store/hooks/useAuth';
 
 export const Login: FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { values, handleChange } = useForm({
+    email: '',
+    password: ''
+  });
+
+  const { isAuthenticated } = useAuth();
+
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const from = localStorage.getItem('redirectAfterLogin') || '/';
+
+  if (isAuthenticated) {
+    navigate(from);
+    return null;
+  }
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
@@ -24,7 +36,10 @@ export const Login: FC = () => {
     setIsLoading(true);
 
     try {
-      const authData = await loginUserApi({ email, password });
+      const authData = await loginUserApi({
+        email: values.email,
+        password: values.password
+      });
       localStorage.setItem('refreshToken', authData.refreshToken);
       setCookie('accessToken', authData.accessToken);
 
@@ -47,10 +62,8 @@ export const Login: FC = () => {
   return (
     <LoginUI
       errorText={error?.message}
-      email={email}
-      setEmail={setEmail}
-      password={password}
-      setPassword={setPassword}
+      values={values}
+      handleChange={handleChange}
       handleSubmit={handleSubmit}
       isLoading={isLoading}
     />

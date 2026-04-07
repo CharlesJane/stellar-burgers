@@ -3,11 +3,14 @@ import { RegisterUI } from '@ui-pages';
 import { useNavigate } from 'react-router-dom';
 import { registerUserApi } from '@api';
 import { setCookie } from '../../utils/cookie';
+import { useForm } from '../../services/store/hooks/useForm';
 
 export const Register: FC = () => {
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { values, handleChange } = useForm({
+    userName: '',
+    email: '',
+    password: ''
+  });
   const [errorText, setErrorText] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -20,9 +23,9 @@ export const Register: FC = () => {
 
     try {
       const response = await registerUserApi({
-        email,
-        name: userName,
-        password
+        email: values.email,
+        name: values.userName,
+        password: values.password
       });
 
       localStorage.setItem('refreshToken', response.refreshToken);
@@ -43,12 +46,8 @@ export const Register: FC = () => {
   return (
     <RegisterUI
       errorText={errorText}
-      email={email}
-      userName={userName}
-      password={password}
-      setEmail={setEmail}
-      setPassword={setPassword}
-      setUserName={setUserName}
+      values={values}
+      handleChange={handleChange}
       handleSubmit={handleSubmit}
       isLoading={isLoading}
     />

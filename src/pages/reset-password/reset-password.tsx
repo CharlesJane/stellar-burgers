@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 
 import { resetPasswordApi } from '@api';
 import { ResetPasswordUI } from '@ui-pages';
+import { useForm } from '../../services/store/hooks/useForm';
 
 export const ResetPassword: FC = () => {
   const navigate = useNavigate();
-  const [password, setPassword] = useState('');
-  const [token, setToken] = useState('');
+  const { values, handleChange } = useForm({ password: '', token: '' });
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -16,7 +16,7 @@ export const ResetPassword: FC = () => {
     setError(null);
     setIsLoading(true);
 
-    resetPasswordApi({ password, token })
+    resetPasswordApi({ password: values.password, token: values.token })
       .then(() => {
         localStorage.removeItem('resetPassword');
         navigate('/login');
@@ -34,10 +34,8 @@ export const ResetPassword: FC = () => {
   return (
     <ResetPasswordUI
       errorText={error?.message}
-      password={password}
-      token={token}
-      setPassword={setPassword}
-      setToken={setToken}
+      values={values}
+      handleChange={handleChange}
       handleSubmit={handleSubmit}
       isLoading={isLoading}
     />
