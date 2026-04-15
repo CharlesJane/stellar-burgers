@@ -44,7 +44,7 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
               ingredient={item}
               index={index}
               totalItems={constructorItems.ingredients.length}
-              key={item.id}
+              key={item.uniqueKey}
             />
           )
         )
@@ -84,6 +84,11 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
         size='large'
         children='Оформить заказ'
         onClick={onOrderClick}
+        disabled={
+          !constructorItems.bun ||
+          constructorItems.ingredients.length === 0 ||
+          orderRequest
+        }
       />
     </div>
 

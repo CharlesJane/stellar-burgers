@@ -1,23 +1,50 @@
-import { FC, useMemo } from 'react';
+import { FC, useMemo, useEffect } from 'react';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
 import { TIngredient } from '@utils-types';
+import { useParams } from 'react-router-dom';
+import { useSelector, useDispatch, RootState } from '../../services/store';
+import { selectFeedOrders } from '../../services/store/selectors/feed-selectors';
+import { selectIngredients } from '../../services/store/selectors/ingredients-selectors';
+import {
+  selectCurrentFeedOrder,
+  selectIsFeedLoading,
+  selectOrderByNumber
+} from '../../services/store/selectors/order-selectors';
+import { fetchOrderByNumberThunk } from '../../services/store/slices/feed-slice';
 
-export const OrderInfo: FC = () => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0
-  };
+interface OrderInfoProps {
+  setCurrentOrderNumber: (number: number | null) => void;
+}
 
-  const ingredients: TIngredient[] = [];
+export const OrderInfo: FC<OrderInfoProps> = ({ setCurrentOrderNumber }) => {
+  const { number } = useParams();
+  const dispatch = useDispatch();
 
-  /* Готовим данные для отображения */
+  const currentFeedOrder = useSelector(selectCurrentFeedOrder);
+  const isLoading = useSelector(selectIsFeedLoading);
+  const ingredients = useSelector(selectIngredients);
+
+  const orderNumber = number ? parseInt(number, 10) : null;
+
+  const orderFromFeed = useSelector((state: RootState) =>
+    selectOrderByNumber(state, number ? parseInt(number, 10) : 0)
+  );
+
+  const orderData = orderFromFeed || currentFeedOrder;
+
+  useEffect(() => {
+    if (orderNumber) {
+      setCurrentOrderNumber(orderNumber);
+
+      if (!orderFromFeed) {
+        dispatch(fetchOrderByNumberThunk(orderNumber));
+      }
+    }
+
+    return () => setCurrentOrderNumber(null);
+  }, [dispatch, orderNumber, setCurrentOrderNumber, orderFromFeed]);
+
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
 
@@ -58,6 +85,10 @@ export const OrderInfo: FC = () => {
       total
     };
   }, [orderData, ingredients]);
+
+  if (isLoading) {
+    return <Preloader />;
+  }
 
   if (!orderInfo) {
     return <Preloader />;

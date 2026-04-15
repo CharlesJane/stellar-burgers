@@ -10,13 +10,10 @@ import { RegisterUIProps } from './type';
 
 export const RegisterUI: FC<RegisterUIProps> = ({
   errorText,
-  email,
-  setEmail,
+  values,
+  handleChange,
   handleSubmit,
-  password,
-  setPassword,
-  userName,
-  setUserName
+  isLoading
 }) => (
   <main className={styles.container}>
     <div className={`pt-6 ${styles.wrapCenter}`}>
@@ -31,11 +28,11 @@ export const RegisterUI: FC<RegisterUIProps> = ({
             <Input
               type='text'
               placeholder='Имя'
-              onChange={(e) => setUserName(e.target.value)}
-              value={userName}
+              onChange={handleChange}
+              value={values.userName || ''}
               name='name'
-              error={false}
-              errorText=''
+              error={!!errorText}
+              errorText={errorText || ''}
               size='default'
             />
           </div>
@@ -43,24 +40,29 @@ export const RegisterUI: FC<RegisterUIProps> = ({
             <Input
               type='email'
               placeholder='E-mail'
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
+              onChange={handleChange}
+              value={values.email || ''}
               name={'email'}
-              error={false}
-              errorText=''
+              error={!!errorText}
+              errorText={errorText || ''}
               size={'default'}
             />
           </div>
           <div className='pb-6'>
             <PasswordInput
-              onChange={(e) => setPassword(e.target.value)}
-              value={password}
+              onChange={handleChange}
+              value={values.password || ''}
               name='password'
             />
           </div>
           <div className={`pb-6 ${styles.button}`}>
-            <Button type='primary' size='medium' htmlType='submit'>
-              Зарегистрироваться
+            <Button
+              disabled={isLoading}
+              type='primary'
+              size='medium'
+              htmlType='submit'
+            >
+              {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
             </Button>
           </div>
           {errorText && (
