@@ -72,29 +72,31 @@ describe('Конструктор бургера', () => {
       .and('contain', main.name);
   });
 
-  // it('Работа модального окна: открытие, закрытие крестиком и оверлеем', () => {
-  //   const ingredient = ingredients[0];
+  it('Закрытие модального окна по крестику', () => {
+    const ingredient = ingredients[0];
 
-  //   // 1. ОТКРЫТИЕ МОДАЛЬНОГО ОКНА
-  //   cy.get(`[data-cy="ingredient-${ingredient._id}"]`).click();
+    cy.get(`[data-cy="ingredient-${ingredient._id}"]`).click();
+    cy.get('#modals [data-cy="modal"]').should('be.visible');
+    cy.get('[data-cy="modal-title"]').should('contain', 'Описание ингредиента');
 
-  //   // Проверка видимости окна и корректности заголовка
-  //   cy.get('[data-cy="modal"]').should('be.visible');
-  //   cy.get('[data-cy="modal-title"]').should('contain', ingredient.name);
+    cy.get('#modals [data-cy="close-modal"]').click();
+    cy.url().should('include', '/');
+    cy.get('#modals [data-cy="modal"]').should('not.exist');
+  });
 
-  //   // 2. ЗАКРЫТИЕ ПО КРЕСТИКУ
-  //   cy.get('[data-cy="close-modal"]').click();
-  //   cy.get('[data-cy="modal"]').should('not.be.visible');
+  it('Закрытие модального окна по оверлею', () => {
+    const ingredient = ingredients[0];
 
-  //   // 3. ПОВТОРНОЕ ОТКРЫТИЕ ДЛЯ ТЕСТА ОВЕРЛЕЯ
-  //   cy.get(`[data-cy="ingredient-${ingredient._id}"]`).click();
-  //   cy.get('[data-cy="modal"]').should('be.visible');
+    cy.visit('/'); // возвращаем страницу к исходному состоянию
+    cy.wait('@getIngredients');
 
-  //   // 4. ЗАКРЫТИЕ ПО ОВЕРЛЕЮ
-  //   // Клик в левый верхний угол страницы (вне модального окна)
-  //   cy.get('body').click(0, 0, { force: true });
-  //   cy.get('[data-cy="modal"]').should('not.be.visible');
-  // });
+    cy.get(`[data-cy="ingredient-${ingredient._id}"]`).click();
+    cy.get('#modals [data-cy="modal"]').should('be.visible');
+
+    cy.get('[data-cy="modal-overlay"]').click(0, 0, { force: true });
+    cy.url().should('include', '/');
+    cy.get('#modals [data-cy="modal"]').should('not.exist');
+  });
 
   // it('Создание заказа: сборка, оформление, проверка и очистка конструктора', () => {
   //   const bun = ingredients.find((i) => i.type === 'bun')!;
