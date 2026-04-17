@@ -269,11 +269,10 @@ describe('Тестирование редьюсера конструктора �
       const result = reducer(initialState, action);
 
       expect(result.constructorItems.bun).toEqual(testBun);
-      expect(result.constructorItems.ingredients).toHaveLength(0); // ингредиенты не затронуты
+      expect(result.constructorItems.ingredients).toHaveLength(0);
     });
 
     it('Добавление новой булочки должно заменять старую на выбранную', () => {
-      // Начальное состояние с булочкой
       const stateWithBun = {
         ...initialState,
         constructorItems: {
@@ -298,12 +297,11 @@ describe('Тестирование редьюсера конструктора �
       const action = burgerConstructorSlice.actions.setBun(testBun);
       const result = reducer(stateWithBun, action);
 
-      expect(result.constructorItems.bun).toEqual(testBun); // старая булочка заменена на новую
+      expect(result.constructorItems.bun).toEqual(testBun);
       expect(result.constructorItems.ingredients).toHaveLength(0);
     });
 
     it('Добавление булочки не должно мутировать список ингредиентов', () => {
-      // Состояние с ингредиентами
       const stateWithIngredients = {
         ...initialState,
         constructorItems: {
@@ -318,10 +316,10 @@ describe('Тестирование редьюсера конструктора �
       const action = burgerConstructorSlice.actions.setBun(testBun);
       const result = reducer(stateWithIngredients, action);
 
-      expect(result.constructorItems.bun).toEqual(testBun); // булочка установлена
-      expect(result.constructorItems.ingredients).toHaveLength(2); // массив ингредиентов не изменился
-      expect(result.constructorItems.ingredients[0].id).toBe('1'); // первый ингредиент на месте
-      expect(result.constructorItems.ingredients[1].id).toBe('2'); // второй ингредиент на месте
+      expect(result.constructorItems.bun).toEqual(testBun);
+      expect(result.constructorItems.ingredients).toHaveLength(2);
+      expect(result.constructorItems.ingredients[0].id).toBe('1');
+      expect(result.constructorItems.ingredients[1].id).toBe('2');
     });
   });
 
