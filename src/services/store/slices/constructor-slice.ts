@@ -159,7 +159,9 @@ export const burgerConstructorSlice = createSlice({
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.orderRequest = false;
-        console.error('Ошибка создания заказа:', action.payload);
+        const errorMessage =
+          action.error?.message || action.error || 'Неизвестная ошибка';
+        console.error('Ошибка создания заказа:', errorMessage);
       });
   }
 });

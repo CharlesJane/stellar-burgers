@@ -36,6 +36,12 @@ const config: JestConfigWithTsJest = {
   coverageProvider: 'v8',
 
   preset: 'ts-jest',
+
+  moduleNameMapper: {
+    '^@api(.*)$': '<rootDir>/src/utils/burger-api$1',
+    '^@utils-types(.*)$': '<rootDir>/src/utils/types$1'
+  },
+
   transform: {
     // '^.+\\.[tj]sx?$' для обработки файлов js/ts с помощью `ts-jest`
     // '^.+\\.m?[tj]sx?$' для обработки файлов js/ts/mjs/mts с помощью `ts-jest`
@@ -104,7 +110,6 @@ const config: JestConfigWithTsJest = {
   // ],
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
-  // moduleNameMapper: {},
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
