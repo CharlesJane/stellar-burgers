@@ -6,6 +6,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "ignoreDeprecations": "6.0",
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
@@ -16,7 +17,6 @@
     "noEmit": false,
     "jsx": "react-jsx",
     "types": ["node", "jest"],
-    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@pages": ["src/pages"],
