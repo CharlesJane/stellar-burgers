@@ -1,0 +1,31 @@
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "60d5f8a1c9d7cc001f3a3b1a",
+      "name": "Булочка",
+      "type": "bun",
+      "proteins": 80,
+      "fat": 24,
+      "carbohydrates": 53,
+      "calories": 420,
+      "price": 100,
+      "image": "/images/bun.png",
+      "image_large": "/images/bun-large.png",
+      "image_mobile": "/images/bun-mobile.png"
+    },
+    {
+      "_id": "60d5f8a1c9d7cc001f3a3b1b",
+      "name": "Котлета",
+      "type": "main",
+      "proteins": 420,
+      "fat": 142,
+      "carbohydrates": 120,
+      "calories": 670,
+      "price": 200,
+      "image": "/images/cutlet.png",
+      "image_large": "/images/cutlet-large.png",
+      "image_mobile": "/images/cutlet-mobile.png"
+    }
+  ]
+}

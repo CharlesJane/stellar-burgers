@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "order": {
+    "_id": "order-12345",
+    "status": "done",
+    "name": "Вкусный бургер",
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-01-01T00:00:00.000Z",
+    "number": 12345,
+    "ingredients": ["60d5f8a1c9d7cc001f3a3b1a", "60d5f8a1c9d7cc001f3a3b1b"]
+  },
+  "name": "Вкусный бургер"
+}
